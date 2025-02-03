@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thunder AI</title>
+  <link rel="website icon" type=".svg" href="thund.svg">
+
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to right, #000428, #004e92);
+      overflow: hidden;
+    }
+
+    .heading {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      font-weight: bold;
+      z-index: 10;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="heading">Loading</h1>
+
+  <script>
+    // Loading text animation
+    let head = document.querySelector(".heading");
+    let dots = 0;
+
+    setInterval(() => {
+      dots = (dots + 1) % 4; 
+      head.innerHTML = "Loading" + ".".repeat(dots);
+    }, 500);
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+
+  <script>
+    // Initialize scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add a point light to enhance the glow effect
+    const pointLight = new THREE.PointLight(0xffff00, 1, 10);
+    pointLight.position.set(0, 0, 2);
+    scene.add(pointLight);
+
+    // Load Vite logo texture
+    const textureLoader = new THREE.TextureLoader();
+    const viteLogo = textureLoader.load('thund.svg'); // Replace with your logo path
+
+    // Create a plane for the Vite logo
+    const logoGeometry = new THREE.PlaneGeometry(1.5, 1.5);
+    const logoMaterial = new THREE.MeshStandardMaterial({
+      map: viteLogo,
+      transparent:true,
+      // emissive: 0xffff00, // Yellow glow in the center
+      // emissiveIntensity: 1,
+    });
+    const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+    logoMesh.position.z = 0;
+    scene.add(logoMesh);
+
+    // Create a group for tornado rings
+    const ringGroup = new THREE.Group();
+    scene.add(ringGroup);
+
+    // Add rotating rings to the tornado group
+    for (let i = 0; i < 10; i++) {
+      const ringGeometry = new THREE.TorusGeometry(1 - i * 0.1, 0.05, 16, 100);
+      const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.5, transparent: true });
+      const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = -i * 0.2; // Stagger rings downward
+      ringGroup.add(ring);
+    }
+
+    // Position camera
+    camera.position.z = 5;
+    camera.lookAt(0, 0, 0);
+
+    // Glow effect variables
+     let glowDirection = 5;
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Rotate the ring group for the tornado effect
+      ringGroup.rotation.y += 0.02;
+
+      // Rotate the logo infinitely
+      // logoMesh.rotation.y += 0.02;
+      logoMesh.rotation.y = ringGroup.rotation.y;
+      // Pulsate the glow effect only on the center
+      logoMaterial.emissiveIntensity += 0.05 * glowDirection;
+      if (logoMaterial.emissiveIntensity >= 2 || logoMaterial.emissiveIntensity <= 0.5) {
+        glowDirection *= -1;
+      }
+
+      // Render the scene
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Adjust scene on window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+    background: linear-gradient(to right, #000428, #004e92); /* Optional */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.vite-logo {
+    position: absolute;
+    width: 150px;
+    z-index: 2;
+    animation: glow 2s infinite;
+}
+.tornado-container {
+    perspective: 1000px;
+}
+.tornado-ring {
+    animation: rotateX 3s linear infinite;
+}
+.heading {
+    text-align: center;
+}
+
+
+@keyframes glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 10px yellow) brightness(1);
+    }
+    50% {
+        filter: drop-shadow(0 0 20px yellow) brightness(2);
+    }
+}
+
